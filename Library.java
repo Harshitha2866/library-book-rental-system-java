@@ -1,55 +1,170 @@
 import java.util.ArrayList;
+import java.util.List;
 
-class Library {
-    ArrayList<Book> books = new ArrayList<>();
+public class Library {
 
-    void addBook(Book b) {
-        books.add(b);
-        System.out.println("Book added successfully!");
+    private LibraryRepository repository;
+    private List<Transaction> history;
+
+    public Library() {
+
+        repository = new LibraryRepository();
+        history = new ArrayList<>();
+
+        FileManager.loadBooks(repository);
+
     }
 
-    Book searchBook(String title) {
-        for (Book b : books) {
-            if (b.title.equalsIgnoreCase(title)) {
-                return b;
-            }
+    public void addBook(Book book) {
+
+        if (repository.containsBook(book.getBookId())) {
+
+            System.out.println("Book ID already exists.");
+            return;
+
         }
-        return null;
+
+        repository.addBook(book);
+
+        FileManager.saveBooks(repository);
+
+        System.out.println("Book added successfully.");
+
     }
 
-    void rentBook(int bookId) {
-        for (Book b : books) {
-            if (b.bookId == bookId) {
-                b.rentBook();
-                return;
-            }
-        }
-        System.out.println("Book not found.");
+    public Book search(SearchStrategy strategy, String value) {
+
+        return strategy.search(repository, value);
+
     }
 
-    void returnBook(int bookId) {
-        for (Book b : books) {
-            if (b.bookId == bookId) {
-                b.returnBook();
-                return;
-            }
+    public void rentBook(int id) {
+
+        Book book = repository.findById(id);
+
+        if (book == null) {
+
+            System.out.println("Book not found.");
+            return;
+
         }
-        System.out.println("Book not found.");
+
+        if (!book.isAvailable()) {
+
+            System.out.println("Book already rented.");
+            return;
+
+        }
+
+        book.setAvailable(false);
+
+        history.add(new Transaction(id, "RENT"));
+
+        FileManager.saveBooks(repository);
+
+        System.out.println("Book rented successfully.");
+
     }
 
-    void displayAvailableBooks() {
-        for (Book b : books) {
-            if (b.isAvailable) {
-                b.displayDetails();
-            }
+    public void returnBook(int id) {
+
+        Book book = repository.findById(id);
+
+        if (book == null) {
+
+            System.out.println("Book not found.");
+            return;
+
         }
+
+        if (book.isAvailable()) {
+
+            System.out.println("Book is already available.");
+            return;
+
+        }
+
+        book.setAvailable(true);
+
+        history.add(new Transaction(id, "RETURN"));
+
+        FileManager.saveBooks(repository);
+
+        System.out.println("Book returned successfully.");
+
     }
 
-    void displayRentedBooks() {
-        for (Book b : books) {
-            if (!b.isAvailable) {
-                b.displayDetails();
+    public void displayAvailableBooks() {
+
+        boolean found = false;
+
+        for (Book book : repository.getAllBooks()) {
+
+            if (book.isAvailable()) {
+
+                System.out.println("--------------------------------");
+                System.out.println(book);
+
+                found = true;
+
             }
+
         }
+
+        if (!found) {
+
+            System.out.println("No available books.");
+
+        }
+
     }
+
+    public void displayRentedBooks() {
+
+        boolean found = false;
+
+        for (Book book : repository.getAllBooks()) {
+
+            if (!book.isAvailable()) {
+
+                System.out.println("--------------------------------");
+                System.out.println(book);
+
+                found = true;
+
+            }
+
+        }
+
+        if (!found) {
+
+            System.out.println("No rented books.");
+
+        }
+
+    }
+
+    public void displayTransactions() {
+
+        if (history.isEmpty()) {
+
+            System.out.println("No transactions yet.");
+            return;
+
+        }
+
+        for (Transaction transaction : history) {
+
+            System.out.println(transaction);
+
+        }
+
+    }
+
+    public int getTotalBooks() {
+
+        return repository.totalBooks();
+
+    }
+
 }
