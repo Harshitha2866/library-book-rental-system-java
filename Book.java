@@ -1,53 +1,49 @@
-class Book {
-    public static int totalBooks = 0;
-    public static final double LATE_FEE = 2.5;
+public class Book {
 
-    int bookId;
-    String title;
-    String author;
-    double price;
-    boolean isAvailable;
+    private int bookId;
+    private String title;
+    private String author;
+    private double price;
+    private boolean available;
 
-    Book() {
-        this.bookId = 0;
-        this.title = "Untitled";
-        this.author = "Unknown";
-        this.price = 0.0;
-        this.isAvailable = true;
-        totalBooks++;
-    }
-
-    Book(int bookId, String title, String author, double price) {
+    public Book(int bookId, String title, String author, double price) {
         this.bookId = bookId;
         this.title = title;
         this.author = author;
         this.price = price;
-        this.isAvailable = true;
-        totalBooks++;
+        this.available = true;
     }
 
-    void displayDetails() {
-        System.out.printf(
-            "ID: %d, Title: %s, Author: %s, Price: %.2f, Available: %b%n",
-            bookId, title, author, price, isAvailable
-        );
+    public int getBookId() {
+        return bookId;
     }
 
-    void rentBook() {
-        if (isAvailable) {
-            isAvailable = false;
-            System.out.println(title + " has been rented.");
-        } else {
-            System.out.println(title + " is not available.");
-        }
+    public String getTitle() {
+        return title;
     }
 
-    void returnBook() {
-        if (!isAvailable) {
-            isAvailable = true;
-            System.out.println(title + " has been returned.");
-        } else {
-            System.out.println(title + " was not rented.");
-        }
+    public String getAuthor() {
+        return author;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    @Override
+    public String toString() {
+        return "Book ID : " + bookId +
+                "\nTitle   : " + title +
+                "\nAuthor  : " + author +
+                "\nPrice   : ₹" + price +
+                "\nStatus  : " + (available ? "Available" : "Rented");
     }
 }
